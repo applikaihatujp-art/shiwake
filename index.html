@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>爆速！仕訳スピードマスター V15</title>
+    
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
+    <link rel="manifest" href="site.webmanifest">
+    
+    <meta name="theme-color" content="#1a1a1a">
+    <meta name="google" content="notranslate">
+
+    <style>
+        body { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #1a1a1a; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        #game-container { background: #2d2d2d; padding: 30px; border-radius: 16px; box-shadow: 0 8px 30px rgba(0,0,0,0.5); width: 100%; max-width: 650px; text-align: center; border: 2px solid #444; position: relative; }
+        h1 { color: #f1c40f; font-size: 26px; margin-bottom: 5px; }
+        
+        #stats { display: flex; justify-content: space-between; margin-bottom: 10px; font-weight: bold; font-size: 18px; background: #222; padding: 10px 20px; border-radius: 8px 8px 0 0; align-items: center; }
+        #timer { color: #2ecc71; }
+        #level-badge { color: #f1c40f; background: #34495e; padding: 2px 8px; border-radius: 4px; font-size: 14px; }
+        
+        #progress-container { background: #444; height: 8px; border-radius: 0 0 8px 8px; margin-bottom: 15px; overflow: hidden; position: relative; }
+        #progress-bar { background: #2ecc71; height: 100%; width: 100%; transition: width 0.2s linear; }
+
+        #cake-display-area { display: flex; justify-content: space-between; align-items: center; height: 75px; margin-bottom: 15px; background: #222; border-radius: 8px; border: 1px solid #333; position: relative; overflow: hidden; padding: 0 20px; }
+        #cake-status-text { font-size: 13px; color: #aaa; font-weight: bold; max-width: 220px; text-align: left; }
+        #cake-container-box { display: flex; gap: 15px; }
+        .cake-box { width: 90px; height: 60px; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; }
+        .cake-part { width: 64px; display: none; }
+        .c-strawberry { width: 16px; height: 14px; background: #e74c3c; border-radius: 50% 50% 40% 40%; margin-bottom: -2px; z-index: 5; }
+        .c-cream-top { height: 7px; background: #fff; z-index: 4; }
+        .c-sponge-top { height: 9px; background: #faced2; z-index: 3; }
+        .c-cream-mid { height: 5px; background: #ff7675; z-index: 2; width: 68px; }
+        .c-sponge-bottom { height: 11px; background: #faced2; z-index: 1; }
+        .c-plate { width: 84px; height: 4px; background: #f1f2f6; }
+
+        #nav-box { display: flex; justify-content: space-around; margin-bottom: 15px; font-size: 16px; font-weight: bold; }
+        .nav-slot { background: #444; padding: 8px 10px; border-radius: 4px; width: 45%; border: 1px dashed #666; }
+        .nav-active { border-color: #f1c40f; color: #f1c40f; background: #3a341c; }
+        .nav-filled { background: #1e3d23; color: #2ecc71; border-style: solid; }
+
+        #question-box { background: #3d3d3d; padding: 25px; border-radius: 8px; min-height: 60px; display: flex; align-items: center; justify-content: center; font-size: 19px; font-weight: bold; margin-bottom: 20px; border-left: 5px solid #f1c40f; }
+        
+        .btn-container { display: grid; gap: 10px; margin-bottom: 10px; }
+        .grid-lv1 { grid-template-columns: repeat(3, 1fr); }
+        .grid-lv2 { grid-template-columns: repeat(4, 1fr); }
+
+        .opt-btn { background: #34495e; color: white; border: 1px solid #555; padding: 16px 2px; border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer; }
+        .opt-btn:active { transform: scale(0.95); }
+        
+        .clear-btn { background: #e67e22; color: white; border: none; padding: 6px 16px; border-radius: 4px; font-size: 13px; cursor: pointer; }
+        .quit-btn { background: #7f8c8d; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; }
+
+        .start-btn { background: #2ecc71; color: white; border: none; padding: 14px 50px; border-radius: 8px; font-size: 22px; font-weight: bold; cursor: pointer; margin-bottom: 15px; }
+        .settings-toggle-btn { background: #444; color: #ccc; border: 1px solid #555; padding: 6px 14px; border-radius: 20px; font-size: 12px; cursor: pointer; }
+        .settings-group { display: flex; flex-direction: column; gap: 8px; align-items: center; margin-top: 5px; overflow: hidden; max-height: 0; transition: max-height 0.3s; }
+        .settings-group.open { max-height: 200px; }
+        
+        .setting-box { display: flex; justify-content: flex-start; align-items: center; gap: 10px; background: #222; padding: 8px 14px; border-radius: 6px; width: 290px; border: 1px solid #444; font-size: 13px; }
+        
+        .history-item { background: #222; padding: 8px 14px; border-radius: 4px; display: flex; justify-content: space-between; border-left: 3px solid #2ecc71; width: 262px; margin-bottom: 6px; }
+        
+        .hide { display: none !important; }
+        .flash-correct { background-color: #1e3d23 !important; }
+        .flash-wrong { background-color: #3d1e1e !important; }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <div id="start-screen">
+        <h1>爆速！複式仕訳マスター</h1>
+        <button class="start-btn" onclick="startGame()">GAME START</button>
+        <button class="settings-toggle-btn" onclick="toggleSettingsMenu()">⚙️ 設定を変更する</button>
+        <div id="settings-group" class="settings-group">
+            <div class="setting-box"><span class="time-label">時間：</span><select id="time-select" onchange="saveSettings()"><option value="60">60秒</option><option value="90">90秒</option><option value="120">120秒</option></select></div>
+            <label class="setting-box"><input type="checkbox" id="vibrate-toggle" onchange="saveSettings()"><span>振動させる</span></label>
+            <label class="setting-box"><input type="checkbox" id="cake-toggle" onchange="saveSettings()"><span>ご褒美ケーキを表示</span></label>
+        </div>
+        <div id="history-list"></div>
+    </div>
+
+    <div id="play-screen" class="hide">
+        <div id="stats">
+            <div>TIME: <span id="timer">60</span>s</div>
+            <div><span id="level-badge">LV.1</span></div>
+            <div>SCORE: <span id="score">0</span></div>
+            <button class="quit-btn" onclick="quitGame()">終了</button>
+        </div>
+        <div id="progress-container"><div id="progress-bar"></div></div>
+        <div id="cake-display-area" class="hide"><div id="cake-status-text"></div><div id="cake-container-box">...</div></div>
+        <div id="nav-box"><div id="slot-dr" class="nav-slot nav-active">借方(左)</div><div id="slot-cr" class="nav-slot">貸方(右)</div></div>
+        <div id="question-box"></div>
+        <div id="btn-container" class="btn-container"></div>
+        <div class="action-area"><button id="clear-btn" class="clear-btn" onclick="clearDrSelection()">やり直す ↩</button></div>
+    </div>
+</div>
+
+<script>
+const quizData = [{q: "商品を売り上げ、代金は掛けとした。", dr: "売掛金", cr: "売上"}, {q: "現金を当座預金口座に預け入れた。", dr: "当座預金", cr: "現金"}, {q: "備品を購入し、代金は現金で支払った。", dr: "備品", cr: "現金"}]; // 抜粋
+let score = 0, timeLeft = 60, maxTime = 60, timerInterval, inputStep = 0, selectedDr = "", isVibrateEnabled = false, currentLevel = 1;
+
+window.onload = function() { loadSettings(); };
+function saveSettings() {
+    localStorage.setItem('vibrate_setting', document.getElementById('vibrate-toggle').checked);
+    isVibrateEnabled = document.getElementById('vibrate-toggle').checked;
+}
+function loadSettings() {
+    isVibrateEnabled = localStorage.getItem('vibrate_setting') === 'true';
+    document.getElementById('vibrate-toggle').checked = isVibrateEnabled;
+}
+function toggleSettingsMenu() { document.getElementById('settings-group').classList.toggle('open'); }
+
+function startGame() {
+    isVibrateEnabled = document.getElementById('vibrate-toggle').checked;
+    document.getElementById('start-screen').classList.add('hide');
+    document.getElementById('play-screen').classList.remove('hide');
+    score = 0; timeLeft = maxTime;
+    nextQuestion();
+    timerInterval = setInterval(() => { timeLeft--; if(timeLeft <= 0) quitGame(); }, 1000);
+}
+
+function handleButtonClick(selectedText) {
+    if (inputStep === 0) {
+        selectedDr = selectedText; inputStep = 1;
+    } else {
+        if (selectedDr === currentQuiz.dr && selectedText === currentQuiz.cr) {
+            score++;
+        } else {
+            // ★ここが振動処理です
+            if (isVibrateEnabled && navigator.vibrate) {
+                navigator.vibrate(200);
+            }
+        }
+        nextQuestion();
+    }
+}
+
+function nextQuestion() {
+    currentQuiz = quizData[Math.floor(Math.random() * quizData.length)];
+    document.getElementById('question-box').innerText = currentQuiz.q;
+    inputStep = 0;
+}
+function quitGame() { clearInterval(timerInterval); location.reload(); }
+</script>
+</body>
+</html>
